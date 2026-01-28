@@ -1,0 +1,10 @@
+{
+    "name": "@airmeet/database",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./db.ts"
+    },
+    "dependencies": {
+        "mongoose": "^9.1.5"
+    }
+}

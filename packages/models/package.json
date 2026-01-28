@@ -1,0 +1,9 @@
+{
+    "name": "@airmeet/models",
+    "private": true,
+    "main": "index.ts",
+    "type": "module",
+    "dependencies": {
+        "mongoose": "^8.0.0"
+    }
+}

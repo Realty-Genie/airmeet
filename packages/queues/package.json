@@ -1,0 +1,11 @@
+{
+  "name": "@airmeet/queues",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "bullmq": "^5.67.2",
+    "ioredis": "^5.9.2"
+  }
+}
