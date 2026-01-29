@@ -1,11 +1,19 @@
 import type { Request, Response } from "express";
 import { RetellService } from '@airmeet/service';
 import { Lead, Call } from '@airmeet/models'
+import { queue } from '@airmeet/queues'
 
 interface CallRequest {
     name: string;
     phNo: string;
     email: string;
+}
+
+interface ScheduleCallRequest {
+    name: string;
+    phNo: string;
+    email: string;
+    delay: number;
 }
 
 export class CallController {
@@ -97,6 +105,7 @@ export class CallController {
 
     static async scheduleCall(req: Request, res: Response) {
         console.log(`Call scheduled for ${req.body}`);
-        // TODO: Implement schedule call Logic
+        const { name, phNo, email, delay }: ScheduleCallRequest = req.body;
+
     }
 }

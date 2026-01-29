@@ -23,6 +23,7 @@
       "name": "backend",
       "devDependencies": {
         "@airmeet/models": "workspace:*",
+        "@airmeet/queues": "workspace:*",
         "@airmeet/service": "workspace:*",
         "@types/bun": "latest",
         "@types/express": "^5.0.6",
