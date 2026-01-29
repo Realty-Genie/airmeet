@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@airmeet/database": "*",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
-    "dotenv-cli": "^11.0.0"
+    "dotenv-cli": "^11.0.0",
+    "express": "^5.2.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "prettier": "^3.7.4",
     "turbo": "^2.8.0",
     "typescript": "5.9.2"

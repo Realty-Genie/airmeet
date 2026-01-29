@@ -8,8 +8,9 @@
     "build": "bun run index.ts"
   },
   "devDependencies": {
+    "@airmeet/models": "workspace:*",
     "@types/bun": "latest",
-    "@airmeet/models": "workspace:*"
+    "@types/express": "^5.0.6"
   },
   "peerDependencies": {
     "typescript": "^5"
