@@ -1,8 +1,6 @@
 import IORedis from 'ioredis'
 
-const redis = new IORedis(process.env.REDIS_URL!, {
+export const redisConnection = new IORedis(process.env.REDIS_URL!, {
     maxRetriesPerRequest: null
 })
 console.log("Redis connected");
-
-export default redis

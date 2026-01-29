@@ -8,9 +8,14 @@
     "build": "bun run index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@airmeet/service": "workspace:*",
+    "@airmeet/queues": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "bullmq": "^5.67.2"
   }
 }

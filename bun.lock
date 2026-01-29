@@ -57,7 +57,12 @@
     },
     "apps/worker": {
       "name": "worker",
+      "dependencies": {
+        "bullmq": "^5.67.2",
+      },
       "devDependencies": {
+        "@airmeet/queues": "workspace:*",
+        "@airmeet/service": "workspace:*",
         "@types/bun": "latest",
       },
       "peerDependencies": {

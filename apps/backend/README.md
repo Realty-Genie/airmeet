@@ -106,16 +106,36 @@ bun run index.ts
     "message": "Calls found",
     "callsOftheLead": [
         {
-            "callDBId": "697b574edc0404587d6fbf39",
-            "callId": "call_a4ae1402d2a8a376731fb985a7b",
-            "createdAt": "2026-01-29T12:49:18.762Z",
+            "callDBId": "697b832a0d56db8449cc86ac",
+            "callId": "call_a8fd40c5cee544739569507524a",
+            "createdAt": "2026-01-29T15:56:26.907Z",
             "status": "registered",
             "analysis": "",
-            "transcript": "transcript of the call",
-            "recordingUrl": "recording url",
+            "transcript": "transcript not available",
+            "recordingUrl": "recording not available",
             "durationMs": 200,
-            "fromNumber": "+1772712351",
-            "toNumber": "+918725567870"
+            "fromNumber": "+17787190711",
+            "toNumber": "+918777562720"
+        },
+        {
+            "callDBId": "697b84343eee14a6369005fb",
+            "callId": "call_36252feba26b24e9bc8a41af169",
+            "createdAt": "2026-01-29T16:00:52.610Z",
+            "status": "ended",
+            "analysis": {
+                "call_summary": "The agent made an outbound call to the user Pramit but the call lasted only 3 seconds with minimal interaction before the agent ended the call.",
+                "in_voicemail": false,
+                "user_sentiment": "Neutral",
+                "call_successful": false,
+                "custom_analysis_data": {
+                    "need_scheduling": false
+                }
+            },
+            "transcript": "User: Hello?\nAgent: Hello Pramit!\n",
+            "recordingUrl": "https://dxc03zgurdly9.cloudfront.net/6ca6ede19d1b781e7fd87bd708524120f6947a8107dccf33e6a70671c642632e/recording.wav",
+            "durationMs": 3791,
+            "fromNumber": "+17787190711",
+            "toNumber": "+918777562720"
         }
     ]
 }
@@ -140,6 +160,7 @@ bun run index.ts
     ]
 }
 ```
+
 
 
 This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
