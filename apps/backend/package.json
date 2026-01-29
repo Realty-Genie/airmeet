@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@airmeet/models": "workspace:*",
+    "@airmeet/service": "workspace:*",
     "@types/bun": "latest",
     "@types/express": "^5.0.6"
   },

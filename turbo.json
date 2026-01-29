@@ -3,7 +3,9 @@
   "ui": "tui",
   "globalEnv": [
     "MONGO_URI",
-    "RETELL_API_KEY"
+    "RETELL_API_KEY",
+    "AGENT_ID",
+    "FROM_NUMBER"
   ],
   "tasks": {
     "build": {

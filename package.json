@@ -16,6 +16,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.6",
     "@types/cors": "^2.8.19",
     "prettier": "^3.7.4",
     "turbo": "^2.8.0",

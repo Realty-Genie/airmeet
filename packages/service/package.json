@@ -1,0 +1,10 @@
+{
+  "name": "@airmeet/service",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "retell-sdk": "^4.66.0"
+  }
+}
