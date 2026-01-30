@@ -1,52 +1,108 @@
-import { logFormData } from "./actions";
+"use client"
 
-export default function Home() {
+import { useEffect, useState } from "react"
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { toast } from "sonner"
+import { format } from "date-fns"
+
+interface Lead {
+  _id: string
+  name: string
+  phNo: string
+  email?: string
+  createdAt: string
+}
+
+export default function Page() {
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/lead/allLeads`)
+        if (response.ok) {
+          const data = await response.json()
+          setLeads(data.leads || [])
+        } else {
+          toast.error("Failed to fetch leads")
+        }
+      } catch (error) {
+        toast.error("Error connecting to server")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchLeads()
+  }, [])
+
   return (
-    <main className="glass-container">
-      <h1 className="form-title">Book a call</h1>
-      <p className="form-subtitle">Enter your details to get started</p>
-
-      <form action={logFormData} className="flex flex-col gap-6">
-        <div className="input-group">
-          <label htmlFor="name" className="input-label">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            className="input-field"
-            required
-          />
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="flex items-center justify-between py-4">
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          </div>
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>Recent Leads</CardTitle>
+              <CardDescription>
+                A list of all leads captured by the system.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex justify-center p-4">Loading leads...</div>
+              ) : leads.length === 0 ? (
+                <div className="text-center p-4 text-muted-foreground">No leads found.</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Created At</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {leads.map((lead) => (
+                      <TableRow key={lead._id}>
+                        <TableCell className="font-medium">{lead.name}</TableCell>
+                        <TableCell>{lead.phNo}</TableCell>
+                        <TableCell>
+                          {lead.createdAt ? format(new Date(lead.createdAt), "PPP p") : "N/A"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-        <div className="input-group">
-          <label htmlFor="email" className="input-label">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="john@example.com"
-            className="input-field"
-            required
-          />
-        </div>
-
-        <div className="input-group">
-          <label htmlFor="phone" className="input-label">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+1 (555) 000-0000"
-            className="input-field"
-            required
-          />
-        </div>
-
-        <button type="submit" className="submit-btn box-border">
-          Call now
-        </button>
-      </form>
-    </main>
-  );
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }

@@ -6,7 +6,8 @@
     "RETELL_API_KEY",
     "AGENT_ID",
     "FROM_NUMBER",
-    "REDIS_URL"
+    "REDIS_URL",
+    "NEXT_PUBLIC_API_URL"
   ],
   "tasks": {
     "build": {
