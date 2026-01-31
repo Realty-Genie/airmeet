@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${circular.className} antialiased`}
+        className={`${circular.className} antialiased bg-gradient-mesh min-h-screen`}
       >
         {children}
       </body>
