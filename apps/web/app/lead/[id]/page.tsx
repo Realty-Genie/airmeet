@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -188,6 +188,7 @@ export default function LeadDetailsPage() {
                 <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
                     {/* Header with Go Back Button */}
                     <div className="flex items-center gap-4 py-4">
+                        <SidebarTrigger className="md:hidden" />
                         <Button
                             variant="outline"
                             size="sm"

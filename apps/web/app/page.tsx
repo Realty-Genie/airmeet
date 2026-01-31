@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import {
   Table,
@@ -64,7 +65,8 @@ export default function Page() {
       <AppSidebar variant="inset" />
       <SidebarInset className="bg-gradient-mesh">
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-3 py-4">
+            <SidebarTrigger className="md:hidden" />
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           </div>
           <Card className="shadow-sm">
