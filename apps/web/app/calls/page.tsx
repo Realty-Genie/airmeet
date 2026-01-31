@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -100,6 +100,11 @@ export default function CallsPage() {
             <AppSidebar variant="inset" />
             <SidebarInset>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                    {/* Mobile Header with Hamburger */}
+                    <div className="flex items-center gap-3 py-4 md:hidden">
+                        <SidebarTrigger />
+                        <h1 className="text-xl font-bold">Calls</h1>
+                    </div>
                     <div className="flex flex-col items-center justify-center min-h-[85vh] w-full">
                         <div className="w-full max-w-md">
                             <Tabs defaultValue="create" className="w-full">
