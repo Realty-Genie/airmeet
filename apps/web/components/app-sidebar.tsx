@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import {
   IconDashboard,
   IconPhone,
@@ -41,8 +42,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <span className="text-base font-semibold">Airmeet</span>
+              <a href="/">
+                <Image
+                  src="/airmeet.svg"
+                  alt="Airmeet"
+                  width={60}
+                  height={60}
+                  priority
+                />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

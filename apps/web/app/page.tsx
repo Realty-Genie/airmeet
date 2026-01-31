@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
@@ -29,6 +30,7 @@ interface Lead {
 export default function Page() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -60,7 +62,7 @@ export default function Page() {
       }
     >
       <AppSidebar variant="inset" />
-      <SidebarInset>
+      <SidebarInset className="bg-gradient-mesh">
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="flex items-center justify-between py-4">
             <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -88,7 +90,11 @@ export default function Page() {
                   </TableHeader>
                   <TableBody>
                     {leads.map((lead) => (
-                      <TableRow key={lead._id}>
+                      <TableRow
+                        key={lead._id}
+                        onClick={() => router.push(`/lead/${lead._id}`)}
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      >
                         <TableCell className="font-medium">{lead.name}</TableCell>
                         <TableCell>{lead.phNo}</TableCell>
                         <TableCell>
