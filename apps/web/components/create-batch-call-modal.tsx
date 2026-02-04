@@ -484,11 +484,11 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
 
                 {/* Trigger Timestamp */}
                 <div className="space-y-2 mt-4">
-                    <Label htmlFor="triggerTimestamp">Trigger Timestamp (Optional)</Label>
+                    <Label htmlFor="triggerTimestamp">Delay in minutes (Optional)</Label>
                     <Input
                         id="triggerTimestamp"
                         type="number"
-                        placeholder="Unix Timestamp"
+                        placeholder="Delay in minutes"
                         value={triggerTimestamp}
                         onChange={(e) => setTriggerTimestamp(e.target.value)}
                     />
