@@ -1,9 +1,10 @@
 import express from 'express';
 import { CallController } from '../controllers/call.controller.ts';
+import { protect } from '../middleware/auth.middleware';
 const router = express.Router();
 
-router.post("/createCall", CallController.createCall)
-router.post("/scheduleCall", CallController.scheduleCall)
-router.get('/getCalls/:leadId', CallController.getCalls)
+router.post("/createCall", protect, CallController.createCall)
+router.post("/scheduleCall", protect, CallController.scheduleCall)
+router.get('/getCalls/:leadId', protect, CallController.getCalls)
 
 export default router;

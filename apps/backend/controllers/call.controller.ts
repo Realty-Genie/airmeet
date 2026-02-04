@@ -33,6 +33,16 @@ interface callDetails {
 export class CallController {
     static async createCall(req: Request, res: Response) {
 
+        const user = req.user;
+
+        
+
+        if(!user){
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
         const { name, phNo, email }: CallRequest = req.body;
 
         if (!phNo) {
@@ -63,7 +73,7 @@ export class CallController {
             lead = await Lead.findOne({ phNo: phNo });
             if (!lead) {
                 const newLead = new Lead({
-                    name, email, phNo: phNo
+                    name, email, phNo: phNo, user: user._id
                 })
                 lead = await newLead.save();
                 console.log(`New Lead created for ${phNo}`);
@@ -159,7 +169,7 @@ export class CallController {
             lead = await Lead.findOne({ phNo: phNo });
             if (!lead) {
                 const newLead = new Lead({
-                    name, email, phNo: phNo
+                    name, email, phNo: phNo, user: req.user._id
                 })
                 lead = await newLead.save();
                 console.log(`New Lead created for ${phNo}`);
