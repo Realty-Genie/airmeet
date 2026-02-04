@@ -77,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span>Credits</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-primary">{user.credits}</span>
+                <span className="text-2xl font-bold text-primary">{Number(user.credits).toFixed(2)}</span>
                 <span className="text-xs text-muted-foreground">remaining</span>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
