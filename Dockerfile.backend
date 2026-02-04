@@ -12,7 +12,7 @@ ENV NODE_ENV=production
 COPY package.json bun.lock ./
 COPY apps/backend ./apps/backend
 COPY apps/worker/package.json ./apps/worker/
-COPY apps/web/package.json ./apps/web/
+COPY apps/web/package.json ./apps/web/  
 COPY packages ./packages
 
 # Install all dependencies (including workspace dependencies)

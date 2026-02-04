@@ -19,14 +19,32 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { toast } from "sonner"
 import { IconPhone, IconCalendar, IconUser, IconMail, IconClock, IconBolt } from "@tabler/icons-react"
 import { CreateBatchCallModal } from "@/components/create-batch-call-modal"
 import { ProtectedRoute } from "@/components/protected-route"
 
+const COUNTRY_CODES = [
+    { code: "+91", label: "IN (+91)" },
+    { code: "+1", label: "US/CA (+1)" },
+    { code: "+44", label: "UK (+44)" },
+    { code: "+61", label: "AU (+61)" },
+    { code: "+49", label: "DE (+49)" },
+    { code: "+33", label: "FR (+33)" },
+    { code: "+81", label: "JP (+81)" },
+]
+
 export default function CallsPage() {
     const [formData, setFormData] = useState({
         name: "",
+        countryCode: "+91",
         phNo: "",
         email: "",
         delay: 1,
@@ -39,6 +57,13 @@ export default function CallsPage() {
         setFormData((prev) => ({
             ...prev,
             [id]: id === "delay" ? Number(value) : value,
+        }))
+    }
+
+    const handleCountryCodeChange = (value: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            countryCode: value,
         }))
     }
 
@@ -55,7 +80,7 @@ export default function CallsPage() {
                 },
                 body: JSON.stringify({
                     name: formData.name,
-                    phNo: formData.phNo,
+                    phNo: `${formData.countryCode}${formData.phNo}`,
                     email: formData.email,
                 }),
             })
@@ -83,7 +108,10 @@ export default function CallsPage() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    phNo: `${formData.countryCode}${formData.phNo}`,
+                }),
             })
 
             if (response.ok) {
@@ -149,7 +177,7 @@ export default function CallsPage() {
                                                             <IconUser className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                                             <Input
                                                                 id="name"
-                                                                placeholder="Pramit"
+                                                                placeholder="John Doe"
                                                                 className="pl-9"
                                                                 value={formData.name}
                                                                 onChange={handleInputChange}
@@ -159,20 +187,37 @@ export default function CallsPage() {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label htmlFor="phNo">Phone Number</Label>
-                                                        <div className="relative">
-                                                            <IconPhone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                                            <Input
-                                                                id="phNo"
-                                                                placeholder="+918777562720"
-                                                                className="pl-9"
-                                                                value={formData.phNo}
-                                                                onChange={handleInputChange}
-                                                                required
-                                                            />
+                                                        <div className="flex gap-2">
+                                                            <Select
+                                                                value={formData.countryCode}
+                                                                onValueChange={handleCountryCodeChange}
+                                                            >
+                                                                <SelectTrigger className="w-[110px]">
+                                                                    <SelectValue placeholder="Code" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {COUNTRY_CODES.map((country) => (
+                                                                        <SelectItem key={country.code} value={country.code}>
+                                                                            {country.label}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <div className="relative flex-1">
+                                                                <IconPhone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                                                <Input
+                                                                    id="phNo"
+                                                                    placeholder="1234567890"
+                                                                    className="pl-9"
+                                                                    value={formData.phNo}
+                                                                    onChange={handleInputChange}
+                                                                    required
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="email">Email</Label>
+                                                        <Label htmlFor="email">Email (Optional)</Label>
                                                         <div className="relative">
                                                             <IconMail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                                             <Input
@@ -182,7 +227,6 @@ export default function CallsPage() {
                                                                 className="pl-9"
                                                                 value={formData.email}
                                                                 onChange={handleInputChange}
-                                                                required
                                                             />
                                                         </div>
                                                     </div>
@@ -209,7 +253,7 @@ export default function CallsPage() {
                                                             <IconUser className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                                             <Input
                                                                 id="name"
-                                                                placeholder="Pramit"
+                                                                placeholder="John Doe"
                                                                 className="pl-9"
                                                                 value={formData.name}
                                                                 onChange={handleInputChange}
@@ -219,20 +263,37 @@ export default function CallsPage() {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <Label htmlFor="phNo">Phone Number</Label>
-                                                        <div className="relative">
-                                                            <IconPhone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                                            <Input
-                                                                id="phNo"
-                                                                placeholder="+918777562720"
-                                                                className="pl-9"
-                                                                value={formData.phNo}
-                                                                onChange={handleInputChange}
-                                                                required
-                                                            />
+                                                        <div className="flex gap-2">
+                                                            <Select
+                                                                value={formData.countryCode}
+                                                                onValueChange={handleCountryCodeChange}
+                                                            >
+                                                                <SelectTrigger className="w-[110px]">
+                                                                    <SelectValue placeholder="Code" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {COUNTRY_CODES.map((country) => (
+                                                                        <SelectItem key={country.code} value={country.code}>
+                                                                            {country.label}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <div className="relative flex-1">
+                                                                <IconPhone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                                                <Input
+                                                                    id="phNo"
+                                                                    placeholder="1234567890"
+                                                                    className="pl-9"
+                                                                    value={formData.phNo}
+                                                                    onChange={handleInputChange}
+                                                                    required
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="email">Email</Label>
+                                                        <Label htmlFor="email">Email (Optional)</Label>
                                                         <div className="relative">
                                                             <IconMail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                                             <Input
@@ -242,7 +303,6 @@ export default function CallsPage() {
                                                                 className="pl-9"
                                                                 value={formData.email}
                                                                 onChange={handleInputChange}
-                                                                required
                                                             />
                                                         </div>
                                                     </div>
