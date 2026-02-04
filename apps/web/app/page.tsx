@@ -19,6 +19,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "sonner"
 import { format } from "date-fns"
+import { ProtectedRoute } from "@/components/protected-route"
+import { useAuth } from "@/components/auth-context"
 
 interface Lead {
   _id: string
@@ -32,11 +34,17 @@ export default function Page() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchLeads = async () => {
+      const token = localStorage.getItem("airmeet_token")
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/lead/allLeads`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/lead/allLeads`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         if (response.ok) {
           const data = await response.json()
           setLeads(data.leads || [])
@@ -54,63 +62,65 @@ export default function Page() {
   }, [])
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
-      <SidebarInset className="bg-gradient-mesh">
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="flex items-center gap-3 py-4">
-            <SidebarTrigger className="md:hidden" />
-            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          </div>
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>Recent Leads</CardTitle>
-              <CardDescription>
-                A list of all leads captured by the system.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center p-4">Loading leads...</div>
-              ) : leads.length === 0 ? (
-                <div className="text-center p-4 text-muted-foreground">No leads found.</div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Created At</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {leads.map((lead) => (
-                      <TableRow
-                        key={lead._id}
-                        onClick={() => router.push(`/lead/${lead._id}`)}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      >
-                        <TableCell className="font-medium">{lead.name}</TableCell>
-                        <TableCell>{lead.phNo}</TableCell>
-                        <TableCell>
-                          {lead.createdAt ? format(new Date(lead.createdAt), "PPP p") : "N/A"}
-                        </TableCell>
+    <ProtectedRoute>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" />
+        <SidebarInset className="bg-gradient-mesh">
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <div className="flex items-center gap-3 py-4">
+              <SidebarTrigger className="md:hidden" />
+              <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            </div>
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>Recent Leads</CardTitle>
+                <CardDescription>
+                  A list of all leads captured by the system.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex justify-center p-4">Loading leads...</div>
+                ) : leads.length === 0 ? (
+                  <div className="text-center p-4 text-muted-foreground">No leads found.</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Created At</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+                    </TableHeader>
+                    <TableBody>
+                      {leads.map((lead) => (
+                        <TableRow
+                          key={lead._id}
+                          onClick={() => router.push(`/lead/${lead._id}`)}
+                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        >
+                          <TableCell className="font-medium">{lead.name}</TableCell>
+                          <TableCell>{lead.phNo}</TableCell>
+                          <TableCell>
+                            {lead.createdAt ? format(new Date(lead.createdAt), "PPP p") : "N/A"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   )
 }
