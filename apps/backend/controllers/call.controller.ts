@@ -30,8 +30,30 @@ interface callDetails {
     toNumber: string,
 }
 
+interface ApiResponse {
+    status: number,
+    message: string,
+    data: any
+}
+
 export class CallController {
     static async createCall(req: Request, res: Response) {
+
+        const user = req.user;
+
+        const creditsLeft = user.credits;
+
+        if (creditsLeft <= 5) {
+            return res.status(400).json({
+                message: "Credits are less than 5, Please buy more credits to continue"
+            })
+        }
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
 
         const { name, phNo, email }: CallRequest = req.body;
 
@@ -63,7 +85,7 @@ export class CallController {
             lead = await Lead.findOne({ phNo: phNo });
             if (!lead) {
                 const newLead = new Lead({
-                    name, email, phNo: phNo
+                    name, email, phNo: phNo, user: user._id
                 })
                 lead = await newLead.save();
                 console.log(`New Lead created for ${phNo}`);
@@ -85,6 +107,8 @@ export class CallController {
                 retell_llm_dynamic_variables: dynamicVariables,
                 metadata: {
                     leadId: lead?._id,
+                    userId: user._id,
+                    isBatchCallRecord: false,
                 }
             })
         } catch (e) {
@@ -123,6 +147,16 @@ export class CallController {
 
         const delayMs = delay * 60 * 1000;
 
+        const user = req.user;
+
+        const creditsLeft = user.credits;
+
+        if (creditsLeft <= 5) {
+            return res.status(400).json({
+                message: "Credits are less than 5, Please buy more credits to continue"
+            })
+        }
+
         if (!name || !delay || !phNo) {
             return res.status(400).json({
                 message: "Missing required fields: name, phNo, delay"
@@ -159,7 +193,7 @@ export class CallController {
             lead = await Lead.findOne({ phNo: phNo });
             if (!lead) {
                 const newLead = new Lead({
-                    name, email, phNo: phNo
+                    name, email, phNo: phNo, user: req.user._id
                 })
                 lead = await newLead.save();
                 console.log(`New Lead created for ${phNo}`);
@@ -175,7 +209,9 @@ export class CallController {
 
         // Metadata for retell
         const metadata = {
-            leadId: lead?._id
+            leadId: lead?._id,
+            userId: user._id,
+            isBatchCallRecord: false,
         }
 
         const jobData = {
@@ -194,6 +230,14 @@ export class CallController {
     }
 
     static async getCalls(req: Request, res: Response) {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+
         const leadId = req.params.leadId;
         if (!leadId || typeof leadId !== 'string' || !Types.ObjectId.isValid(leadId)) {
             return res.status(400).json({
@@ -219,5 +263,122 @@ export class CallController {
             message: "Calls found",
             callsOftheLead
         })
+    }
+
+    static async createBatchCall(req: Request, res: Response) {
+        const user = req.user;
+
+        if (!user) {
+            return res.status(401).json({
+                status: 401,
+                message: "Unauthorized",
+                data: ""
+            })
+        }
+
+        const { leads }: { leads: CallRequest[] } = req.body;
+
+        if (!leads) {
+            return res.status(400).json({
+                status: 400,
+                message: "Leads are required",
+                data: ""
+            } as ApiResponse)
+        }
+
+        if (!leads || !Array.isArray(leads) || leads.length === 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "leads (non-empty array) are required",
+                data: ""
+            } as ApiResponse);
+        }
+
+        const creditsLeft = user.credits;
+
+        const approaxCreditsReq = leads.length * 5;
+        if (creditsLeft <= approaxCreditsReq) {
+            return res.status(400).json({
+                status: 400,
+                message: `Insufficient Credits for calling all leads, Please buy more credits to continue`,
+                data: ""
+            } as ApiResponse)
+        }
+
+        const agentId = process.env.AGENT_ID;
+        if (!agentId) {
+            return res.status(500).json({
+                status: 500,
+                message: "Agent ID is not defined",
+                data: ""
+            } as ApiResponse)
+        }
+        const from_number = process.env.FROM_NUMBER;
+        if (!from_number) {
+            return res.status(500).json({
+                status: 500,
+                message: "From number is not defined",
+                data: ""
+            } as ApiResponse)
+        }
+
+        const tasks = [];
+        for (const leadData of leads) {
+            const { name, email, phNo } = leadData;
+
+            if (!phNo) continue;
+
+
+            try {
+
+                const lead = new Lead({ name, email, phNo, user: user._id });
+                await lead.save();
+
+                const dynamicVariables: any = {
+                    name,
+                    email,
+                    phone_number: phNo,
+                };
+
+                tasks.push({
+                    to_number: phNo,
+                    override_agent_id: agentId,
+                    metadata: {
+                        agentId: agentId,
+                        leadId: lead._id,
+                        userId: user._id,
+                        isBatchCallRecord: true,
+                    },
+                    retell_llm_dynamic_variables: dynamicVariables
+                });
+            } catch (error) {
+                console.error("Database error handling lead in batch:", error);
+                return res.status(500).json({
+                    status: 500,
+                    message: "Database error handling lead in batch",
+                    data: ""
+                } as ApiResponse)
+            }
+        }
+        let batchCallResponse;
+        try {
+            batchCallResponse = await RetellService.createBatchCall({
+                from_number,
+                tasks
+            });
+        } catch (error) {
+            console.error("Retell API error creating batch call:", error);
+            return res.status(500).json({
+                status: 500,
+                message: "Failed to create batch call with Retell",
+                data: ""
+            } as ApiResponse)
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: `Batch Call created successfully for ${leads.length} leads`,
+            data: batchCallResponse
+        } as ApiResponse)
     }
 }

@@ -9,16 +9,20 @@
   },
   "devDependencies": {
     "@airmeet/models": "workspace:*",
-    "@airmeet/service": "workspace:*",
     "@airmeet/queues": "workspace:*",
+    "@airmeet/service": "workspace:*",
+    "@types/bcryptjs": "^3.0.0",
     "@types/bun": "latest",
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5"
   }
 }

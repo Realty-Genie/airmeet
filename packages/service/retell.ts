@@ -15,4 +15,7 @@ export class RetellService {
     static async getCallDetails(callId: string){
         return await retellClient.call.retrieve(callId);
     }
+    static async createBatchCall(params: any) {
+        return await retellClient.batchCall.createBatchCall(params);
+    }
 }
