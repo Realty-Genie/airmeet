@@ -331,8 +331,22 @@ export class CallController {
 
             try {
 
-                const lead = new Lead({ name, email, phNo, user: user._id });
-                await lead.save();
+                let lead = await Lead.findOne({ phNo, user: user._id });
+
+                if (!lead) {
+                    lead = new Lead({ name, email, phNo, user: user._id });
+                    await lead.save();
+                } else {
+                    const nameExists = lead.name;
+                    if (nameExists !== name) {
+                        lead.name = name;
+                    }
+                    const emailExists = lead.email;
+                    if (emailExists !== email) {
+                        lead.email = email;
+                    }
+                    await lead.save();
+                }
 
                 const dynamicVariables: any = {
                     name,
