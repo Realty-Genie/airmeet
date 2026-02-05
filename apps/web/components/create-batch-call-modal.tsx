@@ -284,36 +284,25 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
                             </div>
 
                             <div className="flex gap-3 mt-2">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".csv,.xlsx,.xls"
+                                    className="hidden"
+                                    onChange={handleCSVUpload}
+                                />
                                 <Button
                                     variant="outline"
-                                    onClick={loadSaved}
-                                    className="border-border"
+                                    onClick={() => fileInputRef.current?.click()}
                                 >
-                                    <IconDownload className="h-4 w-4 mr-2" />
-                                    Load Saved
-                                </Button>
-                                <Button onClick={saveList}>
-                                    <IconDeviceFloppy className="h-4 w-4 mr-2" />
-                                    Save List
+                                    <IconUpload className="h-4 w-4 mr-2" />
+                                    Upload CSV/Excel
                                 </Button>
                             </div>
                         </div>
 
                         <div className="flex justify-center">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".csv,.xlsx,.xls"
-                                className="hidden"
-                                onChange={handleCSVUpload}
-                            />
-                            <Button
-                                variant="outline"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <IconUpload className="h-4 w-4 mr-2" />
-                                Upload CSV/Excel
-                            </Button>
+
                         </div>
                     </TabsContent>
 
