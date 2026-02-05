@@ -106,7 +106,15 @@ export class WebhookController {
                 }
 
                 if (!callRecord) {
-                    return res.status(404).json({ message: "Call record not found" });
+                    console.log(`Call record not found for ${call_id}, creating new one.`);
+                    callRecord = new Call({
+                        callId: call_id,
+                        status: call?.call_status,
+                        fromNumber: call?.from_number,
+                        toNumber: call?.to_number!,
+                        leadId: metadata?.leadId,
+                        userId: metadata?.userId,
+                    });
                 }
 
 

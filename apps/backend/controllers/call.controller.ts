@@ -296,7 +296,7 @@ export class CallController {
 
         const creditsLeft = user.credits;
 
-        const approaxCreditsReq = leads.length * 5;
+        const approaxCreditsReq = leads.length * 4;
         if (creditsLeft <= approaxCreditsReq) {
             return res.status(400).json({
                 status: 400,
@@ -322,57 +322,104 @@ export class CallController {
             } as ApiResponse)
         }
 
-        const tasks = [];
-        for (const leadData of leads) {
+        const validLeads = leads.filter(l => l.phNo);
+        const phNos = validLeads.map(l => l.phNo);
+
+        let existingLeads = [];
+        try {
+            existingLeads = await Lead.find({ phNo: { $in: phNos }, user: user._id });
+        } catch (error) {
+            console.error("Database error fetching existing leads:", error);
+            return res.status(500).json({
+                status: 500,
+                message: "Database error fetching existing leads",
+                data: ""
+            } as ApiResponse);
+        }
+
+        const existingLeadsMap = new Map(existingLeads.map(l => [l.phNo, l]));
+        const newLeadsToInsert = [];
+        const bulkUpdates = [];
+
+        for (const leadData of validLeads) {
             const { name, email, phNo } = leadData;
+            const existingLead = existingLeadsMap.get(phNo);
 
-            if (!phNo) continue;
-
-
-            try {
-
-                let lead = await Lead.findOne({ phNo, user: user._id });
-
-                if (!lead) {
-                    lead = new Lead({ name, email, phNo, user: user._id });
-                    await lead.save();
-                } else {
-                    const nameExists = lead.name;
-                    if (nameExists !== name) {
-                        lead.name = name;
-                    }
-                    const emailExists = lead.email;
-                    if (emailExists !== email) {
-                        lead.email = email;
-                    }
-                    await lead.save();
+            if (existingLead) {
+                let needsUpdate = false;
+                const existingEmail = existingLead.email;
+                if (!existingEmail) {
+                    existingLead.email = email;
+                    needsUpdate = true;
                 }
 
-                const dynamicVariables: any = {
+                if (needsUpdate) {
+                    bulkUpdates.push({
+                        updateOne: {
+                            filter: { _id: existingLead._id },
+                            update: { $set: { email } }
+                        }
+                    });
+                }
+            } else {
+                newLeadsToInsert.push({
                     name,
                     email,
-                    phone_number: phNo,
-                };
-
-                tasks.push({
-                    to_number: phNo,
-                    override_agent_id: agentId,
-                    metadata: {
-                        agentId: agentId,
-                        leadId: lead._id,
-                        userId: user._id,
-                        isBatchCallRecord: true,
-                    },
-                    retell_llm_dynamic_variables: dynamicVariables
+                    phNo,
+                    user: user._id
                 });
+            }
+        }
+
+        let createdLeads: any[] = [];
+        if (newLeadsToInsert.length > 0) {
+            try {
+                createdLeads = await Lead.insertMany(newLeadsToInsert);
             } catch (error) {
-                console.error("Database error handling lead in batch:", error);
+                console.error("Database error bulk inserting new leads:", error);
                 return res.status(500).json({
                     status: 500,
-                    message: "Database error handling lead in batch",
+                    message: "Database error creating new leads",
                     data: ""
-                } as ApiResponse)
+                } as ApiResponse);
             }
+        }
+
+        if (bulkUpdates.length > 0) {
+            try {
+                await Lead.bulkWrite(bulkUpdates);
+            } catch (error) {
+                console.error("Database error bulk updating leads:", error);
+            }
+        }
+
+        const finalLeadsMap = new Map(existingLeadsMap);
+        createdLeads.forEach(l => finalLeadsMap.set(l.phNo, l));
+
+        const tasks = [];
+        for (const leadData of validLeads) {
+            const { name, email, phNo } = leadData;
+            const lead = finalLeadsMap.get(phNo);
+
+            if (!lead) continue;
+
+            const dynamicVariables: any = {
+                name,
+                email,
+                phone_number: phNo,
+            };
+
+            tasks.push({
+                to_number: phNo,
+                override_agent_id: agentId,
+                metadata: {
+                    agentId: agentId,
+                    leadId: lead._id,
+                    userId: user._id,
+                    isBatchCallRecord: true,
+                },
+                retell_llm_dynamic_variables: dynamicVariables
+            });
         }
         let batchCallResponse;
         try {
