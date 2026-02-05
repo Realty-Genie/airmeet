@@ -11,7 +11,7 @@ import userRoutes from "./routes/user.route.ts";
 const PORT = Number(process.env.PORT) || 5000
 connectDB(process.env.MONGO_URI!);
 const app = express({
-    limit: '10mb'
+    limit: "10mb"
 });
 app.use(cors(
     {
@@ -20,7 +20,7 @@ app.use(cors(
 ));
 
 app.use(express.json());
-app.use(urlencoded({ extended: true }));
+app.use(urlencoded({ extended: true, limit: "10mb" }));
 
 app.use('/auth', authRoutes);
 app.use('/call', callRoutes);
