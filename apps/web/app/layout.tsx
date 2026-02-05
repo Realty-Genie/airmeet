@@ -1,5 +1,7 @@
 import "./globals.css";
 import localFont from "next/font/local";
+import { AuthProvider } from "@/components/auth-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const circular = localFont({
   src: [
@@ -22,8 +24,12 @@ export default function RootLayout({
       <body
         className={`${circular.className} antialiased bg-gradient-mesh min-h-screen`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
