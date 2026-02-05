@@ -10,7 +10,9 @@ import userRoutes from "./routes/user.route.ts";
 
 const PORT = Number(process.env.PORT) || 5000
 connectDB(process.env.MONGO_URI!);
-const app = express();
+const app = express({
+    limit: '10mb'
+});
 app.use(cors(
     {
         origin: "*",
