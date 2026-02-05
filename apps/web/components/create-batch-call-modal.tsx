@@ -19,7 +19,6 @@ import {
     IconPhone,
     IconPlus,
     IconUpload,
-    IconPhoto,
     IconX,
     IconBolt,
     IconFileSpreadsheet,
@@ -42,7 +41,6 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [leads, setLeads] = useState<Lead[]>([])
     const [isLoading, setIsLoading] = useState(false)
-    const [isProcessingImage, setIsProcessingImage] = useState(false)
     const [triggerTimestamp, setTriggerTimestamp] = useState("")
 
     // Manual entry state
@@ -53,7 +51,6 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
     })
 
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const imageInputRef = useRef<HTMLInputElement>(null)
 
     const handleManualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target
@@ -122,84 +119,7 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
         e.target.value = "" // Reset input
     }
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
 
-        setIsProcessingImage(true)
-        try {
-            // Convert image to base64
-            const reader = new FileReader()
-            reader.onload = async (event) => {
-                const base64Data = event.target?.result as string
-                const base64Image = base64Data.split(",")[1]
-
-                try {
-                    // Call Gemini API directly for image processing
-                    const response = await fetch(
-                        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`,
-                        {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                contents: [
-                                    {
-                                        parts: [
-                                            {
-                                                text: `Extract all contact information from this image. Look for names, phone numbers, and email addresses. Return the data as a JSON array with objects containing "name", "phone", and "email" fields. If a field is not found, use an empty string. Only return the JSON array, nothing else. Example format: [{"name": "John Doe", "phone": "+1234567890", "email": "john@example.com"}]`,
-                                            },
-                                            {
-                                                inline_data: {
-                                                    mime_type: file.type,
-                                                    data: base64Image,
-                                                },
-                                            },
-                                        ],
-                                    },
-                                ],
-                            }),
-                        }
-                    )
-
-                    if (response.ok) {
-                        const data = await response.json()
-                        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ""
-
-                        // Parse JSON from response
-                        const jsonMatch = text.match(/\[[\s\S]*\]/)
-                        if (jsonMatch) {
-                            const extractedLeads = JSON.parse(jsonMatch[0])
-                            const formattedLeads: Lead[] = extractedLeads.map((lead: { name?: string; phone?: string; email?: string }) => ({
-                                name: lead.name || "Unknown",
-                                phNo: lead.phone || "",
-                                email: lead.email || "",
-                            }))
-
-                            if (formattedLeads.length > 0) {
-                                setLeads((prev) => [...prev, ...formattedLeads])
-                                toast.success(`Extracted ${formattedLeads.length} leads from image`)
-                            } else {
-                                toast.error("No contacts found in image")
-                            }
-                        } else {
-                            toast.error("Could not extract contacts from image")
-                        }
-                    } else {
-                        toast.error("Failed to process image")
-                    }
-                } catch (error) {
-                    console.error("OCR Error:", error)
-                    toast.error("Failed to process image")
-                }
-                setIsProcessingImage(false)
-            }
-            reader.readAsDataURL(file)
-        } catch (error) {
-            toast.error("Failed to read image file")
-            setIsProcessingImage(false)
-        }
-        e.target.value = "" // Reset input
-    }
 
     const saveList = () => {
         if (leads.length === 0) {
@@ -282,7 +202,7 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
                 </DialogHeader>
 
                 <Tabs defaultValue="manual" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="manual" className="flex items-center gap-2 text-sm">
                             <IconUser className="h-4 w-4" />
                             <span className="hidden sm:inline">Manual</span>
@@ -290,10 +210,6 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
                         <TabsTrigger value="csv" className="flex items-center gap-2 text-sm">
                             <IconFileSpreadsheet className="h-4 w-4" />
                             <span className="hidden sm:inline">CSV / Excel</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="image" className="flex items-center gap-2 text-sm">
-                            <IconPhoto className="h-4 w-4" />
-                            <span className="hidden sm:inline">Image</span>
                         </TabsTrigger>
                     </TabsList>
 
@@ -401,41 +317,7 @@ export function CreateBatchCallModal({ trigger }: CreateBatchCallModalProps) {
                         </div>
                     </TabsContent>
 
-                    {/* Image Tab */}
-                    <TabsContent value="image" className="space-y-4 mt-4">
-                        <div className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center gap-4 text-center">
-                            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                                <IconPhoto className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                            <div>
-                                <h3 className="font-medium">Upload Image of Leads</h3>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    Upload a photo of a handwritten or printed list. AI will extract names, emails, phones, and addresses.
-                                </p>
-                            </div>
-                            <input
-                                ref={imageInputRef}
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleImageUpload}
-                            />
-                            <Button
-                                onClick={() => imageInputRef.current?.click()}
-                                disabled={isProcessingImage}
-                                variant="default"
-                            >
-                                {isProcessingImage ? (
-                                    "Processing..."
-                                ) : (
-                                    <>
-                                        <IconUpload className="h-4 w-4 mr-2" />
-                                        Select Image
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    </TabsContent>
+
                 </Tabs>
 
                 {/* Leads Preview */}
