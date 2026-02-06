@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import { Call, Lead, User } from "@airmeet/models";
 import { queue } from "@airmeet/queues";
+import callCache from "../../../packages/cache/callCache.ts";
+
 
 interface RetellWebhookBody {
     event: string;
@@ -40,6 +42,7 @@ export class WebhookController {
                         userId: metadata?.userId,
                     });
                     await newCall.save();
+                    await callCache.deleteLeadCalls(metadata?.leadId);
                     console.log("Call Record created for batch call record for lead " + call?.to_number);
                     return res.status(200).json({ message: "Call Record created for batch call record for lead " + call?.to_number });
                 }
@@ -115,6 +118,7 @@ export class WebhookController {
                         leadId: metadata?.leadId,
                         userId: metadata?.userId,
                     });
+                    await callCache.deleteLeadCalls(metadata?.leadId);
                 }
 
 

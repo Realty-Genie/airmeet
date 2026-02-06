@@ -28,6 +28,7 @@
         "mongoose": "^9.1.5",
       },
       "devDependencies": {
+        "@airmeet/cache": "workspace:*",
         "@airmeet/models": "workspace:*",
         "@airmeet/queues": "workspace:*",
         "@airmeet/service": "workspace:*",
@@ -103,6 +104,14 @@
         "typescript": "^5",
       },
     },
+    "packages/cache": {
+      "name": "@airmeet/cache",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@airmeet/models": "workspace:*",
+        "@airmeet/queues": "workspace:*",
+      },
+    },
     "packages/database": {
       "name": "@airmeet/database",
       "version": "0.0.0",
@@ -175,6 +184,8 @@
     "unrs-resolver",
   ],
   "packages": {
+    "@airmeet/cache": ["@airmeet/cache@workspace:packages/cache"],
+
     "@airmeet/database": ["@airmeet/database@workspace:packages/database"],
 
     "@airmeet/models": ["@airmeet/models@workspace:packages/models"],
