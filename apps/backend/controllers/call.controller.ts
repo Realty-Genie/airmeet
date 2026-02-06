@@ -1,6 +1,6 @@
 import { json, type Request, type Response } from "express";
 import { RetellService } from '@airmeet/service';
-import { Lead, Call } from '@airmeet/models'
+import { Lead, Call, type ICallDetails } from '@airmeet/models'
 import { queue } from '@airmeet/queues'
 import { Types } from "mongoose";
 import leadCache from "../../../packages/cache/leadCache.ts";
@@ -19,18 +19,7 @@ interface ScheduleCallRequest {
     delay: number;
 }
 
-interface callDetails {
-    callDBId: string;
-    callId: string;
-    createdAt: Date;
-    status: String,
-    analysis: any
-    transcript: string
-    recordingUrl: string
-    durationMs: number
-    fromNumber: string
-    toNumber: string,
-}
+
 
 interface ApiResponse {
     status: number,
@@ -250,7 +239,7 @@ export class CallController {
             })
         }
         const cachedCalls = await callCache.fetchLeadCalls(leadId);
-        if(cachedCalls){
+        if (cachedCalls) {
             console.log("Calls fetched from cache");
             return res.status(200).json({
                 message: "Calls fetched successfully",
@@ -258,7 +247,7 @@ export class CallController {
             })
         }
         const calls = await Call.find({ leadId: leadId });
-        const callsOftheLead: callDetails[] = calls.map((call) => {
+        const callsOftheLead: ICallDetails[] = calls.map((call) => {
             return {
                 callDBId: call._id as unknown as string,
                 callId: call.callId,
@@ -391,9 +380,9 @@ export class CallController {
             try {
                 createdLeads = await Lead.insertMany(newLeadsToInsert);
                 const deletedCachedData = await leadCache.deleteUserLeads(user._id.toString());
-                if(deletedCachedData == 1){
+                if (deletedCachedData == 1) {
                     console.log(`Deleted data from Cache`);
-                }else{
+                } else {
                     console.log(`Cache Miss no data deleted`);
                 }
             } catch (error) {
