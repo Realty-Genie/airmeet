@@ -13,6 +13,19 @@ export interface ICall extends Document {
     toNumber: string
 }
 
+export interface ICallDetails {
+    callDBId: string;
+    callId: string;
+    createdAt: Date;
+    status: String;
+    analysis: any;
+    transcript: string;
+    recordingUrl: string;
+    durationMs: number;
+    fromNumber: string;
+    toNumber: string;
+}
+
 const CallSchema = new Schema<ICall>({
     callId: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },

@@ -3,7 +3,7 @@ import { RetellService } from '@airmeet/service';
 import { redisConnection } from '@airmeet/queues'
 
 
-const worker = new Worker("call-queue", async (job) => {
+export const worker = new Worker("call-queue", async (job) => {
     console.log("Job processed:", job.data);
     const { metadata, from_number, agentId, dynamicVariables } = job.data;
     console.log(`AgentId: ${agentId}`);

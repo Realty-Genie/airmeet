@@ -3,6 +3,8 @@ import { RetellService } from '@airmeet/service';
 import { Lead, Call } from '@airmeet/models'
 import { queue } from '@airmeet/queues'
 import { Types } from "mongoose";
+import leadCache from "../../../packages/cache/leadCache.ts";
+import callCache from "../../../packages/cache/callCache.ts";
 
 interface CallRequest {
     name: string;
@@ -88,6 +90,7 @@ export class CallController {
                     name, email, phNo: phNo, user: user._id
                 })
                 lead = await newLead.save();
+                await leadCache.deleteUserLeads(user._id.toString());
                 console.log(`New Lead created for ${phNo}`);
             } else {
                 console.log(`Lead found for ${phNo}`);
@@ -127,6 +130,7 @@ export class CallController {
                 leadId: lead?._id,
             });
             await newCall.save();
+            await callCache.deleteLeadCalls(lead?._id.toString());
         } catch (e) {
             console.error(`failed to create call in database: ${e}`);
             return res.status(500).json({
@@ -197,6 +201,7 @@ export class CallController {
                 })
                 lead = await newLead.save();
                 console.log(`New Lead created for ${phNo}`);
+                await leadCache.deleteUserLeads(user._id.toString());
             } else {
                 console.log(`Lead found for ${phNo}`);
             }
@@ -244,6 +249,14 @@ export class CallController {
                 message: "Invalid lead ID"
             })
         }
+        const cachedCalls = await callCache.fetchLeadCalls(leadId);
+        if(cachedCalls){
+            console.log("Calls fetched from cache");
+            return res.status(200).json({
+                message: "Calls fetched successfully",
+                calls: cachedCalls
+            })
+        }
         const calls = await Call.find({ leadId: leadId });
         const callsOftheLead: callDetails[] = calls.map((call) => {
             return {
@@ -259,6 +272,8 @@ export class CallController {
                 toNumber: call.toNumber,
             }
         });
+        await callCache.saveLeadCalls(leadId, callsOftheLead);
+        console.log("Calls fetched from DB");
         return res.status(200).json({
             message: "Calls found",
             callsOftheLead
@@ -375,6 +390,12 @@ export class CallController {
         if (newLeadsToInsert.length > 0) {
             try {
                 createdLeads = await Lead.insertMany(newLeadsToInsert);
+                const deletedCachedData = await leadCache.deleteUserLeads(user._id.toString());
+                if(deletedCachedData == 1){
+                    console.log(`Deleted data from Cache`);
+                }else{
+                    console.log(`Cache Miss no data deleted`);
+                }
             } catch (error) {
                 console.error("Database error bulk inserting new leads:", error);
                 return res.status(500).json({
@@ -388,6 +409,14 @@ export class CallController {
         if (bulkUpdates.length > 0) {
             try {
                 await Lead.bulkWrite(bulkUpdates);
+                const deletedCachedData = await leadCache.deleteUserLeads(user._id.toString());
+                let deleteCacheResult;
+                if (deletedCachedData === 1) {
+                    deleteCacheResult = "true";
+                } else {
+                    deleteCacheResult = "no deletions as no cache found";
+                }
+                console.log(`Deleted data: ${deleteCacheResult}`);
             } catch (error) {
                 console.error("Database error bulk updating leads:", error);
             }
