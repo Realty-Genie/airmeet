@@ -1,0 +1,12 @@
+{
+    "name": "@airmeet/cache",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./query.ts"
+    },
+    "devDependencies": {
+        "@airmeet/queues": "workspace:*",
+        "@airmeet/models": "workspace:*"
+    },
+    "dependencies": {}
+}
